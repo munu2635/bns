@@ -13,6 +13,9 @@
 using namespace cv;
 using namespace std;
 
+
+void write_on_web(int , int );
+
 // #####################################
 //HSV Color red_signal
 /*
@@ -60,19 +63,6 @@ bool r_flag = true;
 bool g_flag = true;
 bool y_flag = true;
 
-int playSound(char *filename) {
-	char command[256];
-	int status;
-
-	/* create command to execute */
-	sprintf(command, "aplay -c 1 -q -t wav %s", filename);
-
-	/* play sound */
-	status = system(command);
-
-	return status;
-}
-
 // #####################################
 struct url_data {
     size_t size;
@@ -112,13 +102,13 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, struct url_data *data) {
     return size * nmemb;
 }
 
-
-
 char *handle_url() {
 
     CURL *curl;
 
     struct url_data data;
+    char temp[100] = "0\n1\n0\n1";
+ 
     data.size = 0;
     data.data = (char*)malloc(4096); /* reasonable size initial buffer */
     if(NULL == data.data) {
@@ -133,20 +123,20 @@ char *handle_url() {
     curl = curl_easy_init();
 
     if (curl) {
-        curl_easy_setopt(curl, CURLOPT_URL, "192.168.50.11/index.html");
+        curl_easy_setopt(curl, CURLOPT_URL, "192.168.50.4/index.html");
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
         res = curl_easy_perform(curl);
 
         if(res != CURLE_OK) {
-
-                fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                curl_easy_strerror(res));
-
+		//fprintf(stderr, "curl_easy_perform() failed: %s\n",curl_easy_strerror(res));
+		if(  !strcmp(curl_easy_strerror(res), "Server returned nothing (no headers, no data)") ) {
+			strcpy(data.data, temp);		 	
+		//	printf("%s\n", data.data);
+			 return data.data;
+		}
         }
-
         curl_easy_cleanup(curl);
-
     }
     return data.data;
 }
@@ -318,7 +308,7 @@ void image_hsv_mjpg(Mat input, int x, int y, int w, int h)
 		int height_y = stats_y.at<int>(idx_y, CC_STAT_HEIGHT);
 
 		if( width_y*height_y < 70000 )  
-		rectangle(img_input, Point(left_y, top_y), Point(left_y + width_y, top_y + height_y), Scalar(0, 0, 255), 1);
+		rectangle(img_input, Point(left_y, top_y), Point(left_y + width_y, top_y + height_y), Scalar(0, 255, 0), 1);
 
 		int left_g = stats_g.at<int>(idx_g, CC_STAT_LEFT);
 		int top_g = stats_g.at<int>(idx_g, CC_STAT_TOP);
@@ -326,7 +316,7 @@ void image_hsv_mjpg(Mat input, int x, int y, int w, int h)
 		int height_g = stats_g.at<int>(idx_g, CC_STAT_HEIGHT);
 
 		if( width_g*height_g < 70000 )  
-		rectangle(img_input, Point(left_g, top_g), Point(left_g + width_g, top_g + height_g), Scalar(0, 0, 255), 1);
+		rectangle(img_input, Point(left_g, top_g), Point(left_g + width_g, top_g + height_g), Scalar(255, 0, 0), 1);
 
 
 
@@ -337,17 +327,19 @@ void image_hsv_mjpg(Mat input, int x, int y, int w, int h)
 
 
 		if (r_flag) {
-			if (width_r*height_r > 4000 && width_r*height_r < 288000) {
+			if (width_r*height_r > 4000 && width_r*height_r < 90000) {
 
 				a_r = time(NULL);
 				a_r_tm = *localtime(&a_r);
 
-				playSound("/home/pi/traffic/red.wav");
+				//playSound("/home/jaeho/jaeho/red.wav");
 
 				printf("Red Detected!!");
 				printf("\n");
 				r_flag = false; //빨강 사각형의 크기를 설정해주면 좋은점 신호등이 멀리있는데서 빨간색 인식하자마자 소리나오면 안좋음
 						//예를 들어 전방 1m에 들어오면 소리 출력해준다고 할때 보이는 신호등의 사각형크기를 if에 넣어주면 좋을듯
+				
+				write_on_web(1,0); // 0717 추가  			
 			}
 		}
 		if (!r_flag) {
@@ -373,15 +365,17 @@ void image_hsv_mjpg(Mat input, int x, int y, int w, int h)
 		}
 
 		if (g_flag) {
-			if (width_g*height_g > 4000 && width_g*height_g < 288000) {
+			if (width_g*height_g > 4000 && width_g*height_g < 90000) {
 				a_g = time(NULL);
 				a_g_tm = *localtime(&a_g);
 
 
 				printf("Green Detected!!\n");
-				playSound("/home/pi/traffic/green.wav");
+				//playSound("/home/jaeho/jaeho/green.wav");
 				printf("\n");
 				g_flag = false;
+
+				write_on_web(0,1);
 			}
 		}
 
@@ -416,7 +410,7 @@ void image_hsv_mjpg(Mat input, int x, int y, int w, int h)
 				a_y_tm = *localtime(&a_y);
 
 				printf("Yellow Detected!!\n");
-				playSound("/home/pi/traffic/green.wav");
+				//playSound("/home/jaeho/jaeho/green.wav");
 				printf("\n");
 				y_flag = false;
 			}
@@ -445,33 +439,76 @@ void image_hsv_mjpg(Mat input, int x, int y, int w, int h)
 
 }
 
+void write_on_web(int red, int green)
+{
+    FILE* html_fd;
+    char context[32];
+    int bBox = 0;
+
+    // 파일 내용 초기화  
+    if (html_fd = fopen("yolo3/darknet/www/html/index2.html", "r"))
+    {
+	int index = 0;
+	printf("file reset\n");
+	while((context[index++] = fgetc(html_fd)) != EOF); // 파일 내용 읽어서 context에 저장
+	
+	fclose(html_fd);
+
+	if (html_fd = fopen("yolo3/darknet/www/html/index2.html", "w")) // 쓰기 모드로 열기
+	{
+             fprintf(html_fd, "%d", 0);
+             fclose(html_fd);
+	}
+        else
+             printf("file open fail(W)\n");
+	
+	
+    }else
+	     printf("file open fail(R)\n"); // 파일 내용 초기화 끝.
+ 
+   
+    if( html_fd = fopen("yolo3/darknet/www/html/index2.html", "w"))
+    {
+	printf("file open success\n");
+	// if 빨간불 일 때
+	if( red == 1 ){
+		fprintf(html_fd, "%d", 1);
+		fclose(html_fd);
+	}
+    	// if 초록불 일 때
+	if( green == 1 ){
+		fprintf(html_fd, "%d", 2);
+        	fclose(html_fd);
+	}
+    }
+    else
+	printf("file open fail(2)\n");
+
+
+
+}
+
 int main(){
 	
 	char* data;
 	
-	
 	//printf("%s\n",data);
-
-
 	// 문자열 배열에 저장.
 	char* ptr;
 	char* sArr[10] = { NULL, };
 	int i = 0;
 
-	
-
 
 	int x, y, w, h;
 	
-	
-
-
-	VideoCapture capture("http:/172.19.87.109:8081/video?dummy=param.mjpg");
+	//VideoCapture capture("http:/172.19.87.109:8081/video?dummy=param.mjpg");
+	VideoCapture capture("http:/192.168.50.15:8080./?action=stream");
 	Mat frame; 
 
 	while(1) {
         
 		data = handle_url();
+		
 		ptr = strtok(data,"\n");
 
 		while (ptr != NULL)
