@@ -1,0 +1,10 @@
+내려받기 
+https://github.com/munu2635/Yolo_mark.git
+
+실행코드 
+./yolo_mark image폴더위치 train.txt파일위치 obj.names위치 
+
+예시
+./yolo_mark ~/mine/yolo/AB/Darknet/build/darknet/x64/case2.3_data/image ~/mine/yolo/AB/Darknet/build/darknet/x64/case2.3_data/train.txt ~/mine/yolo/AB/Darknet/build/darknet/x64/case2.3_data/obj.names
+
+참고 case2.3_data 폴더 
