@@ -1,3 +1,4 @@
+#클라이언트에서 계속 실행 버튼입력받으면 mqtt로 메세지 전송 및 측정값 mqtt로 받음 -> txt 파일로 저장 
 import RPi.GPIO as gpio
 import paho.mqtt.client as mqtt
 
@@ -11,7 +12,7 @@ gpio.setup(button2_pin, gpio.IN)
 
 def use_button():
 	if gpio.input(button1_pin) == True:
-	        mqttc.publish("bns/client/startbtn", startbtn)
+	        mqttc.publish("bns/client/startbtn", 1)
 	elif gpio.input(button2_pin) == True:
 def get_message():
 	if result is not None:
