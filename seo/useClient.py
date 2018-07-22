@@ -35,7 +35,7 @@ def on_message(client, userdata, msg):
 mqttc = mqtt.Client()
 mqttc.on_connect = on_connect
 mqttc.on_publish = on_publish
-mqttc.on_message 
+mqttc.on_message = on_message
 mqttc.connect("127.0.0.1")
 mqttc.loop_start()
 
