@@ -1,0 +1,4 @@
+ ./darknet detector test data/case2.1_data/obj.data yolo-case2.cfg backup/yolo-case2_30000.weights
+ ./darknet detector train data/case2.1_data/obj.data yolo-case2.cfg
+
+ ./darknet detector train case2.3_data/obj.data yolo-case2.cfg

@@ -42,9 +42,9 @@ def customCallback(client, userdata, message):
 		get_message()
 		print("Received a new message: " + message.payload)
 
-myMQTTClient = AWSIoTMQTTClient("/home/laply/bns/AWS/testFiles/bns.public.key")
+myMQTTClient = AWSIoTMQTTClient("/home/laply/bns/BNS-code/BWS-ConfigureData/bns.public.key")
 myMQTTClient.configureEndpoint("a2ydgvmemsrzk9.iot.ap-northeast-1.amazonaws.com", 8883)
-myMQTTClient.configureCredentials("/home/laply/bns/AWS/testFiles/root-CA.crt", "/home/laply/bns/AWS/testFiles/bns.private.key", "/home/laply/bns/AWS/testFiles/bns.cert.pem")
+myMQTTClient.configureCredentials("/home/laply/bns/BNS-code/BWS-ConfigureData/root-CA.crt", "/home/laply/bns/BNS-code/BWS-ConfigureData/bns.private.key", "/home/laply/bns/BNS-code/BWS-ConfigureData/bns.cert.pem")
 
 myMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
 myMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
