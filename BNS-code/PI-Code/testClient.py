@@ -8,6 +8,10 @@ def button(btn):
 		start_button()
 	elif btn == 2 and start == 1:
 		end_button()
+	elif btn == 3: #test make txt
+		get_message("hi")
+		
+
 def start_button():
 	global start
 	print(1)
@@ -22,16 +26,15 @@ def end_button():
 	print("off streamming")
 	start = 0
 
-def get_message():
+def get_message(result):
 	f = open("result.txt", 'w')
 	f.write(result)
 	f.close()
-	result = "";
 
 def customCallback(client, userdata, message):
 	global start
 	if start == 1:
-		get_message()
+		get_message(message.payload)
 		print("Received a new message: " + message.payload)
 
 myMQTTClient = AWSIoTMQTTClient("/home/laply/bns/BNS-code/BWS-ConfigureData/bns.public.key")
@@ -48,11 +51,13 @@ myMQTTClient.subscribe("bns/server/+", 1, customCallback)
 
 try:
 	while True:
-		btn = input("input 1 or 2 : ")
+		btn = input("input 1 after 2 : ")
 		button(btn)
 
 except KeyboardInterrupt:
-	print("Finished!")
-	myMQTTClient.publish("bns/client/endbtn", str(2), 0)
+	print(" Finished!")
+	if start == 1:
+		print(2)
+		myMQTTClient.publish("bns/client/endbtn", str(2), 0)
 	myMQTTClient.unsubscribe("bns/server/+")
 	myMQTTClient.disconnect()

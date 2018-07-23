@@ -15,31 +15,31 @@ def button():
 		start_button()
 	elif gpio.input(button2_pin) == True and start == 1:
 		end_button()
+	elif btn == 3: #test make txt
+		get_message("hi")
+		
 
 def start_button():
 	global start
-	myMQTTClient.publish("bns/client/startbtn", str(1), 0)
+	myMQTTClient.publish("bns/client/startBtn", str(1), 0)
 	start = 1
 
 def end_button():
 	global start
-	myMQTTClient.publish("bns/client/endbtn", str(2), 0)
+	myMQTTClient.publish("bns/client/endBtn", str(2), 0)
 	time.sleep(1)
 	print("off streamming")
 	start = 0
 
-	start = 0
-
-def get_message():
+def get_message(result):
 	f = open("result.txt", 'w')
 	f.write(result)
 	f.close()
-	result = "";
 
 def customCallback(client, userdata, message):
 	global start
 	if start == 1:
-		get_message()
+		get_message(message.payload)
 		print("Received a new message: " + message.payload)
 
 myMQTTClient = AWSIoTMQTTClient("/home/laply/bns/BNS-code/BWS-ConfigureData/bns.public.key")
@@ -60,7 +60,10 @@ try:
 		
 except KeyboardInterrupt:
 	print("Finished!")
-	myMQTTClient.publish("bns/client/endbtn",  str(2), 0)\	myMQTTClient.unsubscribe("bns/server/+")
-	myMQTTClient.disconnect()
+	if start == 1:
+		print(2)
+		myMQTTClient.publish("bns/client/endbtn", str(2), 0)
+
 	myMQTTClient.unsubscribe("bns/server/+")
 	myMQTTClient.disconnect()
+
