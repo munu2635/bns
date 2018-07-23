@@ -1,9 +1,9 @@
 from paho.mqtt import client as mqtt
 import ssl
 
-path_to_root_cert = "<local path to digicert.cer>"
+path_to_root_cert = "BaltimoreCyberTrustRootCER"
 device_id = "TestSeoPi1"
-sas_token = "dzLvx6z5PYBRD38Sy5SPb7TOtGrzpUCfXznR6RV06v4="
+sas_token = "sLbM6bBI+f7sIf4y17NQM6LFzG/lNT2X92ZCw4JlWhI="
 iot_hub_name = "BnsHub"
 
 def on_connect(client, userdata, flags, rc):
@@ -26,5 +26,13 @@ client.tls_insecure_set(False)
 
 client.connect(iot_hub_name+".azure-devices.net", port=8883)
 
-client.publish("devices/" + device_id + "/messages/events/", "{id=123}", qos=1)
-client.loop_forever()
+client.loop_start()
+
+try:
+	while True:
+		client.publish("devices/" + device_id + "/messages/events/", "hi")
+
+except KeyboardInterrupt:
+	print("Finished!")
+	mqttc.loop_stop()
+	mqttc.disconnect()
