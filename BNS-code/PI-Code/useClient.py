@@ -12,9 +12,9 @@ gpio.setup(button2_pin, gpio.IN)
 
 
 def button():
-	if gpio.input(button1_pin) == True and start == 0:
+	if gpio.input(button1_pin) == False and start == 0:
 		start_button()
-	elif gpio.input(button2_pin) == True and start == 1:
+	elif gpio.input(button2_pin) == False  and start == 1:
 		end_button()
 
 def start_button():
