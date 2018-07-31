@@ -1,6 +1,5 @@
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import time
-result = "";
 start = 0;
 
 def button(btn):

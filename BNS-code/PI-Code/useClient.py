@@ -1,8 +1,9 @@
 import RPi.GPIO as gpio
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+import time
 
-button1_pin = 8
-button2_pin = 10
+button1_pin = 14
+button2_pin = 15
 start = 0;
 
 gpio.setmode(gpio.BCM)
@@ -11,13 +12,10 @@ gpio.setup(button2_pin, gpio.IN)
 
 
 def button():
-	if btn == 1 and start == 0:
+	if gpio.input(button1_pin) == True and start == 0:
 		start_button()
-	elif btn == 2 and start == 1:
+	elif gpio.input(button2_pin) == True and start == 1:
 		end_button()
-	elif btn == 3: #test make txt
-		get_message("hi")
-		
 
 def start_button():
 	global start
@@ -57,8 +55,7 @@ myMQTTClient.subscribe("bns/server/+", 1, customCallback)
 
 try:
 	while True:
-		btn = input("input 1 after 2 : ")
-		button(btn)
+		button()
 		
 except KeyboardInterrupt:
 	print("Finished!")
