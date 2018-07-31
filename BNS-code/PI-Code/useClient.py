@@ -1,8 +1,8 @@
 import RPi.GPIO as gpio
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
-button1_pin = 11
-button2_pin = 13
+button1_pin = 8
+button2_pin = 10
 start = 0;
 
 gpio.setmode(gpio.BCM)
@@ -15,17 +15,19 @@ def button():
 		start_button()
 	elif gpio.input(button2_pin) == True and start == 1:
 		end_button()
-	elif btn == 3: #test make txt
-		get_message("hi")
+#	elif btn == 3: #test make txt
+#		get_message("hi")
 		
 
 def start_button():
 	global start
+	print(1)
 	myMQTTClient.publish("bns/client/startBtn", str(1), 0)
 	start = 1
 
 def end_button():
 	global start
+	print(2)
 	myMQTTClient.publish("bns/client/endBtn", str(2), 0)
 	time.sleep(1)
 	print("off streamming")
@@ -42,9 +44,9 @@ def customCallback(client, userdata, message):
 		get_message(message.payload)
 		print("Received a new message: " + message.payload)
 
-myMQTTClient = AWSIoTMQTTClient("/home/laply/bns/BNS-code/BWS-ConfigureData/bns.public.key")
+myMQTTClient = AWSIoTMQTTClient("/home/pi/bns/BNS-code/BWS-ConfigureData/bns.public.key")
 myMQTTClient.configureEndpoint("a2ydgvmemsrzk9.iot.ap-northeast-1.amazonaws.com", 8883)
-myMQTTClient.configureCredentials("/home/laply/bns/BNS-code/BWS-ConfigureData/root-CA.crt", "/home/laply/bns/BNS-code/BWS-ConfigureData/bns.private.key", "/home/laply/bns/BNS-code/BWS-ConfigureData/bns.cert.pem")
+myMQTTClient.configureCredentials("/home/pi/bns/BNS-code/BWS-ConfigureData/root-CA.crt", "/home/pi/bns/BNS-code/BWS-ConfigureData/bns.private.key", "/home/pi/bns/BNS-code/BWS-ConfigureData/bns.cert.pem")
 
 myMQTTClient.configureOfflinePublishQueueing(-1)  # Infinite offline Publish queueing
 myMQTTClient.configureDrainingFrequency(2)  # Draining: 2 Hz
