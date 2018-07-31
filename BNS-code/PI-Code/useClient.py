@@ -11,23 +11,22 @@ gpio.setup(button2_pin, gpio.IN)
 
 
 def button():
-	if gpio.input(button1_pin) == True and start == 0:
+	if btn == 1 and start == 0:
 		start_button()
-	elif gpio.input(button2_pin) == True and start == 1:
+	elif btn == 2 and start == 1:
 		end_button()
-#	elif btn == 3: #test make txt
-#		get_message("hi")
+	elif btn == 3: #test make txt
+		get_message("hi")
 		
 
 def start_button():
 	global start
-	print(1)
+	print("start streamming")
 	myMQTTClient.publish("bns/client/startBtn", str(1), 0)
 	start = 1
 
 def end_button():
 	global start
-	print(2)
 	myMQTTClient.publish("bns/client/endBtn", str(2), 0)
 	time.sleep(1)
 	print("off streamming")
@@ -58,7 +57,8 @@ myMQTTClient.subscribe("bns/server/+", 1, customCallback)
 
 try:
 	while True:
-		button()
+		btn = input("input 1 after 2 : ")
+		button(btn)
 		
 except KeyboardInterrupt:
 	print("Finished!")

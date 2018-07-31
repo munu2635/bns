@@ -14,13 +14,12 @@ def button(btn):
 
 def start_button():
 	global start
-	print(1)
+	print("start streamming")
 	myMQTTClient.publish("bns/client/startbtn", str(1), 0)
 	start = 1
 		
 def end_button():
 	global start
-	print(2)
 	myMQTTClient.publish("bns/client/endbtn", str(2), 0)
 	time.sleep(1)
 	print("off streamming")
